@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "promboard.qwen-image-2-1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "Qwen-Image 2.1 — 글로 만들기 · 고치기 · 투명 배경",
   "description": "Qwen 의 Qwen-Image 2.1 로 프롬프트 글에서 이미지를 만들고, 참조 이미지(4장까지)를 이으면 고치거나 섞는다. '투명 배경'을 켜면 배경이 투명한 PNG 를 만든다. Turbo 는 8단계로 빠르다. 경량화 설정으로 판과 정밀도(원본 bf16 · unsloth GGUF Q8 · Q4)를 고르고 고른 판만 받는다 — 공통 파일 18.2GB + 트랜스포머 4.2~14.2GB. 그래픽카드 메모리 8GB 이상. 비상업(연구 · 평가) 전용 Qwen Research License. PromBoard 팀은 만들기만 하고 실제로 돌려 보지 않았다(검증 안 됨).",
   "author": "PromBoard",
