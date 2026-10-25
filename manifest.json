@@ -1,0 +1,435 @@
+{
+  "schema": 1,
+  "id": "promboard.qwen-image-2-1",
+  "version": "1.0.0",
+  "name": "Qwen-Image 2.1 — 글로 만들기 · 고치기 · 투명 배경",
+  "description": "Qwen 의 Qwen-Image 2.1 로 프롬프트 글에서 이미지를 만들고, 참조 이미지(4장까지)를 이으면 고치거나 섞는다. '투명 배경'을 켜면 배경이 투명한 PNG 를 만든다. Turbo 는 8단계로 빠르다. 경량화 설정으로 판과 정밀도(원본 bf16 · unsloth GGUF Q8 · Q4)를 고르고 고른 판만 받는다 — 공통 파일 18.2GB + 트랜스포머 4.2~14.2GB. 그래픽카드 메모리 8GB 이상. 비상업(연구 · 평가) 전용 Qwen Research License. PromBoard 팀은 만들기만 하고 실제로 돌려 보지 않았다(검증 안 됨).",
+  "author": "PromBoard",
+  "license": "Apache-2.0",
+  "app": ">=1.0.3",
+  "repository": "https://github.com/promboard-app/qwen-image-2-1",
+  "icon": "icon.png",
+  "contents": [
+    "nodes"
+  ],
+  "nodes": [
+    {
+      "id": "generate",
+      "label": "Qwen-Image 2.1 생성 · 편집",
+      "description": "프롬프트만 이으면 글로 이미지를 만들고, 참조 이미지(4장까지)를 같이 이으면 그 이미지를 고치거나 섞어 한 장(PNG)으로 만든다. '투명 배경'을 켜면 배경이 투명한 PNG 를 만든다. Turbo 는 8단계로 빠르다. 비상업(연구 · 평가) 전용.",
+      "inputs": [
+        {
+          "id": "prompt",
+          "type": "text",
+          "label": "프롬프트",
+          "required": true
+        },
+        {
+          "id": "images",
+          "type": "image",
+          "label": "참조 이미지 (4장까지)",
+          "multiple": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "image",
+          "type": "image",
+          "label": "이미지"
+        }
+      ],
+      "settings": [
+        {
+          "id": "quantization",
+          "label": "경량화",
+          "type": "select",
+          "default": "auto",
+          "help": "판과 정밀도를 고른다. Turbo 는 8단계로 빠르고, 2.1 은 증류하지 않은 원래 판으로 40단계라 느리다. 원본(bf16)이 가장 정확하고, GGUF Q8 · Q4 는 그래픽카드 메모리를 덜 쓰는 대신 그림이 조금 거칠 수 있다. 자동은 이 PC 그래픽카드 메모리로 Turbo 판을 고른다. 고른 판만 받는다.",
+          "options": [
+            {
+              "value": "auto",
+              "label": "자동",
+              "auto": [
+                {
+                  "minVramMb": 20480,
+                  "value": "turbo-bf16"
+                },
+                {
+                  "minVramMb": 10240,
+                  "value": "turbo-q8"
+                },
+                {
+                  "value": "turbo-q4"
+                }
+              ]
+            },
+            {
+              "value": "turbo-bf16",
+              "label": "Turbo · 원본 (bf16)",
+              "vramMinMb": 20480
+            },
+            {
+              "value": "turbo-q8",
+              "label": "Turbo · GGUF Q8",
+              "vramMinMb": 10240
+            },
+            {
+              "value": "turbo-q4",
+              "label": "Turbo · GGUF Q4",
+              "vramMinMb": 8192
+            },
+            {
+              "value": "base-bf16",
+              "label": "2.1 · 원본 (bf16)",
+              "vramMinMb": 20480
+            },
+            {
+              "value": "base-q8",
+              "label": "2.1 · GGUF Q8",
+              "vramMinMb": 10240
+            },
+            {
+              "value": "base-q4",
+              "label": "2.1 · GGUF Q4",
+              "vramMinMb": 8192
+            }
+          ]
+        },
+        {
+          "id": "size",
+          "label": "크기",
+          "type": "select",
+          "default": "auto",
+          "help": "가로×세로 픽셀. 자동은 마지막 참조 이미지의 가로세로 비로 약 100만 픽셀, 참조 이미지가 없으면 1024×1024. 공식 해상도는 2048급이지만 오래 걸리고 메모리를 많이 쓴다.",
+          "options": [
+            {
+              "value": "auto",
+              "label": "자동 (참조 이미지 비율)"
+            },
+            {
+              "value": "1024x1024",
+              "label": "정사각 1024"
+            },
+            {
+              "value": "1376x768",
+              "label": "가로 16:9 (1376×768)"
+            },
+            {
+              "value": "768x1376",
+              "label": "세로 9:16 (768×1376)"
+            },
+            {
+              "value": "1184x880",
+              "label": "가로 4:3 (1184×880)"
+            },
+            {
+              "value": "880x1184",
+              "label": "세로 3:4 (880×1184)"
+            },
+            {
+              "value": "1264x848",
+              "label": "가로 3:2 (1264×848)"
+            },
+            {
+              "value": "848x1264",
+              "label": "세로 2:3 (848×1264)"
+            },
+            {
+              "value": "2048x2048",
+              "label": "정사각 2048 (공식 · 느림)"
+            }
+          ]
+        },
+        {
+          "id": "transparent",
+          "label": "투명 배경",
+          "type": "boolean",
+          "default": false,
+          "help": "켜면 공식 카드의 투명 이미지 프롬프트 틀로 감싸 배경이 투명한 PNG(RGBA)를 만든다. 스티커 · 로고 · 제품 컷에 쓴다."
+        },
+        {
+          "id": "seed",
+          "label": "시드",
+          "type": "integer",
+          "default": -1,
+          "min": -1,
+          "max": 2147483647,
+          "help": "-1 이면 매번 다른 그림. 숫자를 정하면 같은 입력 · 설정에서 같은 그림이 나온다(쓴 시드는 PNG 정보에 남는다)."
+        },
+        {
+          "id": "steps",
+          "label": "단계 수 (2.1)",
+          "type": "integer",
+          "default": 0,
+          "min": 0,
+          "max": 100,
+          "help": "2.1(원래 판)만 쓴다. 0 이면 공식 예시 40. Turbo 는 저장된 8단계 일정을 그대로 쓴다."
+        }
+      ]
+    }
+  ],
+  "python": {
+    "version": "3.12",
+    "torch": "host",
+    "lock": {
+      "win": "nodes/requirements-win.txt",
+      "linux": "nodes/requirements-linux.txt",
+      "mac": "nodes/requirements-mac.txt"
+    },
+    "entry": "nodes.main"
+  },
+  "gpu": {
+    "vramMinMb": 8192,
+    "cpuAllowed": false
+  },
+  "permissions": {},
+  "requires": {
+    "models": [
+      {
+        "source": "huggingface",
+        "repo": "Qwen/Qwen-Image-2.1-Turbo",
+        "revision": "fc13ba1986fcb905854dc8de2f52eee395f49b5b",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "model_index.json",
+            "bytes": 578,
+            "sha256": "97e2febeb19d93cb41fa44807cde8bd42757950b5dffeacdb0331fb2d390cf20"
+          },
+          {
+            "path": "processor/chat_template.jinja",
+            "bytes": 5292,
+            "sha256": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4"
+          },
+          {
+            "path": "processor/processor_config.json",
+            "bytes": 1300,
+            "sha256": "14932921ca485d458a04dafd8069fbb0a4505622a48208d19ed247115801385b"
+          },
+          {
+            "path": "processor/tokenizer.json",
+            "bytes": 11422650,
+            "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+          },
+          {
+            "path": "processor/tokenizer_config.json",
+            "bytes": 705,
+            "sha256": "fd42a0b35a8d13cd473e88e310b50cbf1bccaa9eb60ed0fd873af5f8f0c59307"
+          },
+          {
+            "path": "scheduler/scheduler_config.json",
+            "bytes": 486,
+            "sha256": "16c948c71f9152a34cce6e3a2f309e97ad2dca32beecbe5e2fd3a7925b7eb4bb"
+          },
+          {
+            "path": "text_encoder/config.json",
+            "bytes": 1542,
+            "sha256": "89050cba6b66c4f68f52305b54fc37efe28d95232246b94aa8dc0cfa36f3b734"
+          },
+          {
+            "path": "text_encoder/generation_config.json",
+            "bytes": 241,
+            "sha256": "d04d0c6fdd1dc056cf68178425a3ecf17a0b9e848cf1a8378ad31c623263472c"
+          },
+          {
+            "path": "text_encoder/model.safetensors",
+            "bytes": 17534340584,
+            "sha256": "a1eee8233f3063466dd3b06e857b0a2cf13a77c543908374771d51a546beb2e0"
+          },
+          {
+            "path": "transformer/config.json",
+            "bytes": 370,
+            "sha256": "2c567038ca190824728844b8d06d94ae02360e668707afd9734e789a7eb58ce3"
+          },
+          {
+            "path": "vae/config.json",
+            "bytes": 2172,
+            "sha256": "42bfdec412459bbb7bc38a0617ab70edcfc873f84ec47e0c7d01c53ba09885a5"
+          },
+          {
+            "path": "vae/diffusion_pytorch_model.safetensors",
+            "bytes": 675508656,
+            "sha256": "71879ffd5321e6d10c3c87513e2b474b1252efa7f3dec2969214a9bf06a6dd5c"
+          }
+        ]
+      },
+      {
+        "source": "huggingface",
+        "repo": "Qwen/Qwen-Image-2.1-Turbo",
+        "revision": "fc13ba1986fcb905854dc8de2f52eee395f49b5b",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "transformer/diffusion_pytorch_model-00001-of-00002.safetensors",
+            "bytes": 9968332504,
+            "sha256": "6cccd922767f01694461bdcf1f34ea7b771f3442e4d5e338ea9aa55277431cc0"
+          },
+          {
+            "path": "transformer/diffusion_pytorch_model-00002-of-00002.safetensors",
+            "bytes": 4261951904,
+            "sha256": "69f53ebb063d2f606bdaff7e22e0e2144f28d978d73dc75e6e4293fc5982eab5"
+          },
+          {
+            "path": "transformer/diffusion_pytorch_model.safetensors.index.json",
+            "bytes": 30283,
+            "sha256": "17987f6623b1c814d0ef55a137d99142b7b3b040eb1bf241b5575dd35af803a2"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "turbo-bf16"
+          ]
+        }
+      },
+      {
+        "source": "huggingface",
+        "repo": "Qwen/Qwen-Image-2.1",
+        "revision": "d26bb61231c349cf6b7896fa83353113880e1ba3",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "scheduler/scheduler_config.json",
+            "bytes": 485,
+            "sha256": "5895f3a167c14a967fe9ac70c64924ae5acc79799e0679fd12907e594a713cd1"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "base-bf16",
+            "base-q8",
+            "base-q4"
+          ]
+        }
+      },
+      {
+        "source": "huggingface",
+        "repo": "Qwen/Qwen-Image-2.1",
+        "revision": "d26bb61231c349cf6b7896fa83353113880e1ba3",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "transformer/config.json",
+            "bytes": 370,
+            "sha256": "56ae3281c4e6c2d1aa3658252d187488071815fd79bef15808bb0205fc1a2241"
+          },
+          {
+            "path": "transformer/diffusion_pytorch_model-00001-of-00002.safetensors",
+            "bytes": 9968332504,
+            "sha256": "9e6bc2d641e67bf277895ea8777141044a38f3edb7101bc469b2961dd7c36b4b"
+          },
+          {
+            "path": "transformer/diffusion_pytorch_model-00002-of-00002.safetensors",
+            "bytes": 4261951904,
+            "sha256": "3aaf234dcbe128530479735854a346b5e3e66283b7c11db56f836bbd1c13ebaa"
+          },
+          {
+            "path": "transformer/diffusion_pytorch_model.safetensors.index.json",
+            "bytes": 30283,
+            "sha256": "17987f6623b1c814d0ef55a137d99142b7b3b040eb1bf241b5575dd35af803a2"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "base-bf16"
+          ]
+        }
+      },
+      {
+        "source": "huggingface",
+        "repo": "unsloth/Qwen-Image-2.1-Turbo-GGUF",
+        "revision": "5d1f9f759ea877ae556cda88dbec958b62ad3809",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "qwen-image-2.1-turbo-Q8_0.gguf",
+            "bytes": 7640860480,
+            "sha256": "399d2ddc3636f36456e2f5bfa57187da4e38721bc046430317f42a9eab5b1712"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "turbo-q8"
+          ]
+        }
+      },
+      {
+        "source": "huggingface",
+        "repo": "unsloth/Qwen-Image-2.1-Turbo-GGUF",
+        "revision": "5d1f9f759ea877ae556cda88dbec958b62ad3809",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "qwen-image-2.1-turbo-Q4_K_M.gguf",
+            "bytes": 4199565120,
+            "sha256": "8940e8b522af886e0c0f5afddf720e82dd223cb9a43580b5f61c4d740452ac20"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "turbo-q4"
+          ]
+        }
+      },
+      {
+        "source": "huggingface",
+        "repo": "unsloth/Qwen-Image-2.1-GGUF",
+        "revision": "2c31ccd392b367a6637841a143813320a02dff55",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "qwen-image-2.1-Q8_0.gguf",
+            "bytes": 7640860384,
+            "sha256": "c0ed4b2ffd56cbe9c3df1e4a4098045256484ebe94ba5a7e4338d35ec046baa5"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "base-q8"
+          ]
+        }
+      },
+      {
+        "source": "huggingface",
+        "repo": "unsloth/Qwen-Image-2.1-GGUF",
+        "revision": "2c31ccd392b367a6637841a143813320a02dff55",
+        "license": "LicenseRef-Qwen-Research-License",
+        "files": [
+          {
+            "path": "qwen-image-2.1-Q4_K_M.gguf",
+            "bytes": 4199565024,
+            "sha256": "631d532e7ca71e8d90a87c71d3699761a812039d22e3370e87498d87754660fe"
+          }
+        ],
+        "when": {
+          "node": "generate",
+          "setting": "quantization",
+          "values": [
+            "base-q4"
+          ]
+        }
+      }
+    ]
+  },
+  "nonCommercial": true,
+  "licenseNotice": {
+    "conditions": "Qwen Research License: 연구 · 평가 목적으로만 쓸 수 있다(상업 사용은 Alibaba 와 따로 계약해야 한다). 이 모델로 학습 · 개선한 AI 모델을 배포하면 'Built with Qwen' 을 표기하고, 'Qwen' 을 그 모델의 주 이름으로 쓰지 않는다.",
+    "url": "https://huggingface.co/Qwen/Qwen-Image-2.1/blob/main/LICENSE"
+  },
+  "categories": [
+    "imageGenerate",
+    "imageEdit"
+  ],
+  "unverified": true
+}
